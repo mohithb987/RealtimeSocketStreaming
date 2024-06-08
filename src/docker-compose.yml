@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  spark-master:
+    container_name: spark-master
+    hostname: spark-master
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master # to start Spark master process
+    volumes:
+      - ./config:/opt/bitnami/spark/config
+      - ./jobs:/opt/bitnami/spark/jobs # mount local jobs to opt spark jobs path
+      - ./datasets:/opt/bitnami/spark/datasets
+      - ./requirements.txt:/requirements.txt
+    ports:
+      - "9090:8080" # expose 9090 as external IP and 8080 as internal IP
+      - "7077:7077" # port to submit jobs 
+    networks:
+      - realtimeSocketStreaming
+
+  spark-worker: &worker
+    container_name: spark-worker
+    hostname: spark-worker
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 # sparkMaster URL that the workers will be communicating with
+    volumes:
+      - ./config:/opt/bitnami/spark/config
+      - ./jobs:/opt/bitnami/spark/jobs
+      - ./datasets:/opt/bitnami/spark/datasets
+      - ./requirements.txt:/requirements.txt
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    networks:
+      - realtimeSocketStreaming
+
+networks:
+  realtimeSocketStreaming:
