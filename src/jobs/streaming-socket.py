@@ -15,6 +15,7 @@ def send_data_over_socket(file_path, host=local_host, port=9999, chunk_size=2): 
     print(f'Accepted connection request from client: {addr}')
 
     try:
+        last_sent_index = 0
         with open(file_path, 'r') as file:
             # skip the lines that were sent to client already
             for _ in range(last_sent_index):
@@ -43,4 +44,4 @@ def send_data_over_socket(file_path, host=local_host, port=9999, chunk_size=2): 
         print('Connection closed.')
 
 if __name__ == "__main__":
-    send_data_over_socket('datase')
+    send_data_over_socket('src/datasets/yelp_academic_dataset_review.json', local_host, 9999, 2)
