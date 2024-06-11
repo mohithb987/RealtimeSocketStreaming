@@ -13,7 +13,7 @@ def handle_date_format (obj): # to format timestamp to string before serializing
 
 
 
-def send_data_over_socket(file_path, host=local_host, port=9999, chunk_size=2): # pull 2 records at once from source
+def send_data_over_socket(file_path, host='spark-master', port=9999, chunk_size=2): # pull 2 records at once from source
     s = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM) # address family = IPv4, type = stream oriented TCP socket
     s.bind((host, port))
     s.listen(1) # listen to one connection at a time
@@ -26,7 +26,6 @@ def send_data_over_socket(file_path, host=local_host, port=9999, chunk_size=2): 
         print(f'Accepted connection request from client: {addr}')
     
         try:
-            
             with open(file_path, 'r') as file:
                 # skip the lines that were sent to client already
                 for _ in range(last_sent_index):
@@ -55,4 +54,4 @@ def send_data_over_socket(file_path, host=local_host, port=9999, chunk_size=2): 
             print('Connection closed.')
 
 if __name__ == "__main__":
-    send_data_over_socket('src/datasets/yelp_academic_dataset_review.json', local_host, 9999, 2)
+    send_data_over_socket('datasets/yelp_academic_dataset_review.json', 'spark-master', 9999, 2)
