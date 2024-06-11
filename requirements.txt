@@ -1,3 +1,6 @@
+# Non-Python dependency: Confluent CLI
+# Instructions: https://docs.confluent.io/confluent-cli/3.64/overview.html
+
 annotated-types==0.7.0
 anyio==4.4.0
 certifi==2024.6.2
