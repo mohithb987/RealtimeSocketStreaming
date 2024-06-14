@@ -1,0 +1,21 @@
+config = {
+    "openai": {
+        "api_key": "enter_api_key"
+    },
+    "groq": {
+        "api_key": "enter_api_key"
+    },
+    "kafka": { # Required connection configs for Kafka producer, consumer
+        "sasl.username": "enter_username", 
+        "sasl.password": "enter_password",
+        "bootstrap.servers": "", # endpoint to connect to
+        # "security.protocol": "SASL_SSL",
+        # "sasl.mechanisms": "PLAIN",
+        # "session.timeout.ms": 45000
+    },
+
+    "schema_registry": { # to track changes when schema evolves
+        "url": "enter_schema_registry_endpoint",
+        "basic.auth.user.info": "enter_key:enter_secret"
+    }
+}
