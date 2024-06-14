@@ -1,11 +1,42 @@
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import  StructType, StructField, StringType, FloatType
-from pyspark.sql.functions import from_json, col
+from pyspark.sql.functions import from_json, col, udf, when
 from config.config import config
 from time import sleep
+from openai import OpenAI
+from groq import Groq
 
 local_host = "127.0.0.1"
+
+def sentiment_analysis(comment) -> str:
+    if comment:
+        # client = OpenAI(api_key=config['openai']['api_key'])
+        client = Groq(api_key=config['groq']['api_key'])
+
+        chat_completion = client.chat.completions.create(
+            # model='gpt-3.5-turbo',
+            model="llama3-8b-8192",
+            messages = [
+                {
+                    "role": "system",
+                    "content": """
+                                You're a machine learning model with a task of classifying comments into POSITIVE, NEGATIVE, NEUTRL.
+                                You are to respond with one word from the option specified above, do not add any more text.
+
+                                Here is the comment:
+
+                                {comment}
+                                """.format(comment=comment)
+                }
+            ]
+        )
+
+        print(chat_completion.choices[0].message.content)
+
+        return chat_completion.choices[0].message.content
+    
+    return "Empty"
 
 # to read data from socket
 def start_streaming(spark):
@@ -33,6 +64,13 @@ def start_streaming(spark):
             stream_df = stream_df.select(from_json(col('value'), schema).alias("data")).select(("data.*"))
             # query = stream_df.writeStream.outputMode("append").format("console").options(truncate=False).start() # display streams on console
             
+            sentiment_analysis_udf = udf(sentiment_analysis, StringType())
+
+            stream_df = stream_df.withColumn('feedback', 
+                        when(col('text').isNotNull(), sentiment_analysis_udf(col('text')))
+                        .otherwise(None)
+                        )
+
             kafka_df = stream_df.selectExpr("CAST(review_id AS STRING) AS key", "to_json(struct(*)) AS value")
             print("Starting to write to Kafka...")
 
