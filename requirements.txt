@@ -1,6 +1,3 @@
-# Non-Python dependency: Confluent CLI
-# Instructions: https://docs.confluent.io/confluent-cli/3.64/overview.html
-
 annotated-types==0.7.0
 anyio==4.4.0
 certifi==2024.6.2
@@ -8,6 +5,7 @@ confluent-kafka==2.4.0
 distro==1.9.0
 exceptiongroup==1.2.1
 fastavro==1.9.4
+groq==0.9.0
 h11==0.14.0
 httpcore==1.0.5
 httpx==0.27.0
